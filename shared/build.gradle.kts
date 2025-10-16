@@ -35,12 +35,12 @@ kotlin {
 
 android {
     namespace = "com.example.kmp"
-    compileSdk = 34
+    compileSdk = 36
     defaultConfig {
-        minSdk = 24
+        minSdk = 28
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }

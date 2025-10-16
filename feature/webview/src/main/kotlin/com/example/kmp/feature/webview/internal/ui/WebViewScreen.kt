@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import com.example.kmp.domain.WebViewPolicy
 import com.example.kmp.feature.webview.api.WebCommand
 import com.example.kmp.feature.webview.api.WebEvent
@@ -42,6 +44,21 @@ fun WebViewScreen(
     
     var webViewRef by remember { mutableStateOf<WebView?>(null) }
     var chooserCallback by remember { mutableStateOf<ValueCallback<Array<Uri>>?>(null) }
+    
+    // File chooser launcher
+    val fileChooserLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        chooserCallback?.onReceiveValue(uri?.let { arrayOf(it) })
+        chooserCallback = null
+    }
+    
+    val multipleFileChooserLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenMultipleDocuments()
+    ) { uris ->
+        chooserCallback?.onReceiveValue(uris.toTypedArray())
+        chooserCallback = null
+    }
     
     // Handle commands from manager
     LaunchedEffect(Unit) {
@@ -213,6 +230,13 @@ fun WebViewScreen(
                             val types = fileChooserParams?.acceptTypes?.filter { it.isNotBlank() } ?: emptyList()
                             val isMultiple = fileChooserParams?.mode == FileChooserParams.MODE_OPEN_MULTIPLE
                             
+                            // Launch appropriate file chooser
+                            if (isMultiple) {
+                                multipleFileChooserLauncher.launch(types.toTypedArray())
+                            } else {
+                                fileChooserLauncher.launch(types.toTypedArray())
+                            }
+                            
                             controller.emit(WebEvent.UploadRequested(types, isMultiple))
                             return true
                         }
@@ -251,6 +275,14 @@ fun WebViewScreen(
             controller.emit(WebEvent.Interruption(WebEvent.Interruption.Kind.BackPressed))
         } else {
             onClose()
+        }
+    }
+    
+    // Cleanup file chooser callback on dispose
+    DisposableEffect(Unit) {
+        onDispose {
+            chooserCallback?.onReceiveValue(null)
+            chooserCallback = null
         }
     }
 }
