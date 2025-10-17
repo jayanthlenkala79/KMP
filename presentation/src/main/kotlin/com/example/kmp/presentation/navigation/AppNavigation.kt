@@ -10,6 +10,8 @@ import androidx.navigation.NavType
 import com.example.kmp.presentation.screens.HomeScreen
 import com.example.kmp.presentation.screens.WebViewScreen
 import com.example.kmp.presentation.screens.WebViewManagerDemo
+import com.example.kmp.presentation.screens.WelcomeScreen
+import com.example.kmp.presentation.screens.WebViewOptionsScreen
 import java.net.URLDecoder
 import java.net.URLEncoder
 
@@ -20,8 +22,37 @@ import java.net.URLEncoder
 fun AppNavigation(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = "welcome"
     ) {
+        composable("welcome") {
+            WelcomeScreen(
+                onNavigateToWebView = { url, title ->
+                    val encodedUrl = URLEncoder.encode(url, "UTF-8")
+                    val encodedTitle = URLEncoder.encode(title, "UTF-8")
+                    navController.navigate("webview?url=$encodedUrl&title=$encodedTitle")
+                },
+                onNavigateToHome = {
+                    navController.navigate("home")
+                },
+                onNavigateToOptions = {
+                    navController.navigate("webview-options")
+                }
+            )
+        }
+        
+        composable("webview-options") {
+            WebViewOptionsScreen(
+                onNavigateToWebView = { url, title ->
+                    val encodedUrl = URLEncoder.encode(url, "UTF-8")
+                    val encodedTitle = URLEncoder.encode(title, "UTF-8")
+                    navController.navigate("webview?url=$encodedUrl&title=$encodedTitle")
+                },
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        
         composable("home") {
             HomeScreen(
                 onOpenWebView = { url, title ->
@@ -31,13 +62,14 @@ fun AppNavigation(navController: NavHostController) {
                 },
                 onOpenManagerDemo = {
                     navController.navigate("manager-demo")
-                }
+                },
             )
         }
         
         composable("manager-demo") {
             WebViewManagerDemo()
         }
+        
         
         composable(
             route = "webview?url={url}&title={title}",

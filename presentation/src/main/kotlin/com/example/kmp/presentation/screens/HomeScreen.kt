@@ -16,7 +16,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun HomeScreen(
     onOpenWebView: (url: String, title: String) -> Unit,
-    onOpenManagerDemo: () -> Unit
+    onOpenManagerDemo: () -> Unit,
+    onOpenExamples: () -> Unit
 ) {
     val sampleUrls = listOf(
         "https://www.google.com" to "Google",
@@ -81,6 +82,13 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Open WebView Manager Demo")
+            }
+            
+            Button(
+                onClick = onOpenExamples,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("WebView Navigation Examples")
             }
             
             Spacer(modifier = Modifier.weight(1f))
